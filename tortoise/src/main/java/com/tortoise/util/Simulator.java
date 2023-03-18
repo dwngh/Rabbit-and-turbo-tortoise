@@ -21,23 +21,23 @@ public class Simulator {
         // we set a starting _value which is not exactly _mean (it could be 
         // but my personal preference is to not have each data set start on 
         // the same value)
-        _value = _mean - _random.nextFloat();
+        _value = _mean;
     }
 
-    private static final byte[] Factors = {-1, 1};
+    private static final byte[] factors = {-1, 1};
 
-    public float CalculateNextValue() {
+    public float calculateNextValue() {
         // first calculate how much the value will be changed
         double valueChange = _random.nextDouble() * _stepSizeFactor;
         // second decide if the value is increased or decreased
-        int factor = Factors[DecideFactor()];
+        int factor = factors[decideFactor()];
 
         // apply valueChange and factor to _value and return
         _value += valueChange * factor;
         return _value;
     }
 
-    private int DecideFactor() {
+    private int decideFactor() {
         // the distance from the _mean
         double distance;  
         int continueDirection;
@@ -61,7 +61,7 @@ public class Simulator {
         // chance with a distance of zero would mean a 50/50 chance for the
         // randomValue to be higher or lower.
         // The division by 50 was found by empiric testing different values
-        double chance = (_standardDeviation / 2) - (distance / 50);
+        double chance = (_standardDeviation / 2.2) - (distance / 50);
         double randomValue = _random.nextDouble() * _standardDeviation;
 
         // if the random value is smaller than the chance we continue in the

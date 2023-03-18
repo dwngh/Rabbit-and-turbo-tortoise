@@ -16,10 +16,8 @@ public class Sensor extends Node {
     protected FlashMemory mem;
 
     protected DeliverCallback deliverCallback = (consumerTag, delivery) -> {
-        System.out.print(this.id);
         ControlDataPacket p = new ControlDataPacket();
         p.decode(delivery.getBody());
-        p.print();
         if (p.getId() == this.id) {
             this.compression = p.getValue();
             System.out.println("Set compression of " + Integer.toString(id) + ": " + String.valueOf(p.getValue()));
@@ -47,7 +45,7 @@ public class Sensor extends Node {
                     this.deliverCallback, cancelCallback);
             float tmp;
             while (true) {
-                tmp = gen.CalculateNextValue();
+                tmp = gen.calculateNextValue();
                 if (compression) {
                     tmp = mem.push(tmp);
                     if (tmp != 0) {
@@ -64,7 +62,6 @@ public class Sensor extends Node {
 
     protected void publish(float _value) {
         SensorDataPacket p = new SensorDataPacket(this.id, _value);
-        // System.out.println("Value of " + name + ": " + Float.toString(tmp));
         try {
             this.conn.publish(Tortoise.SENSOR_EXCHANGE, p.encode());
         } catch (IOException e) {
