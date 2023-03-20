@@ -1,2 +1,2 @@
 mvn clean install
-java -cp tortoise-1.0-SNAPSHOT com.tortoise.Tortoise
+java -cp target/tortoise-1.0-SNAPSHOT.jar com.tortoise.Tortoise
