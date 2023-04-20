@@ -14,6 +14,10 @@ public class Sensor extends Node {
     protected Simulator gen;
     protected boolean compression;
     protected FlashMemory mem;
+    private float value;
+
+    public static byte NO_COMPRESSION = 0;
+    public static byte ENA_COMPRESSION = 1;
 
     protected DeliverCallback deliverCallback = (consumerTag, delivery) -> {
         ControlDataPacket p = new ControlDataPacket();
@@ -27,9 +31,9 @@ public class Sensor extends Node {
     CancelCallback cancelCallback = consumerTag -> {
     };
 
-    public Sensor(String name) {
-        super(name);
-        this.gen = new Simulator(id * 17, 20, 5);
+    public Sensor() {
+        super();
+        this.gen = new Simulator(id * 17, 9, 3);
         this.conn.initOutChannel(Tortoise.SENSOR_EXCHANGE);
         this.compression = true;
         this.mem = new FlashMemory();
@@ -53,7 +57,7 @@ public class Sensor extends Node {
                     }
                 } else
                     publish(tmp);
-                Thread.sleep(300);
+                Thread.sleep(Tortoise.TIME_WINDOW);
             }
         } catch (Exception e) {
 
@@ -61,11 +65,20 @@ public class Sensor extends Node {
     }
 
     protected void publish(float _value) {
-        SensorDataPacket p = new SensorDataPacket(this.id, _value);
+        this.value = _value;
+        SensorDataPacket p = new SensorDataPacket(this.id, _value, compression ? ENA_COMPRESSION : NO_COMPRESSION);
         try {
             this.conn.publish(Tortoise.SENSOR_EXCHANGE, p.encode());
         } catch (IOException e) {
             System.err.println("IO Error when publishing");
         }
+    }
+
+    public boolean isCompression() {
+        return compression;
+    }
+
+    public float getValue() {
+        return value;
     }
 }

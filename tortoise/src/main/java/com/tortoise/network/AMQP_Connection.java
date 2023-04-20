@@ -1,6 +1,7 @@
 package com.tortoise.network;
 
 import java.io.IOException;
+import java.util.concurrent.TimeoutException;
 
 import com.rabbitmq.client.*;
 import com.tortoise.Tortoise;
@@ -19,8 +20,10 @@ public class AMQP_Connection {
         factory.setPassword(Tortoise.PASSWORD);
         try {
             this.connection = factory.newConnection();
-        } catch (Exception e) {
-            System.err.println("Exception");
+        } catch (IOException e) {
+            System.err.println(" IO Exception");
+        } catch (TimeoutException e) {
+            System.err.println("Timeout Exception");
         }
     }
 

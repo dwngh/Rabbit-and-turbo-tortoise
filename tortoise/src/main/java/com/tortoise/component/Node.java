@@ -9,10 +9,14 @@ public abstract class Node implements Runnable{
     protected Thread t;
     protected String name;
 
-    public Node(String name) {
+    public Node() {
         this.id = COUNTER++;
-        this.name = name;
+        this.name = "Node-" + Integer.toString(this.id);
         this.conn = new AMQP_Connection();
+    }
+
+    public int getId() {
+        return id;
     }
 
     public abstract void run();
