@@ -17,7 +17,7 @@ public class Simulator {
         _standardDeviation = Math.abs(standardDeviation);
         // we define a _stepSizeFactor that is used when calculating the 
         // next value
-        _stepSizeFactor = _standardDeviation / 10;
+        _stepSizeFactor = _standardDeviation / 2;
         // we set a starting _value which is not exactly _mean (it could be 
         // but my personal preference is to not have each data set start on 
         // the same value)
