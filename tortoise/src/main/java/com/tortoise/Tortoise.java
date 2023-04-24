@@ -19,15 +19,8 @@ public class Tortoise {
         MonitorDashboard md = new MonitorDashboard();
         SensorManager sm = new SensorManager();
         Node s = new Sensor();
-        // ((Sensor) s).disableCompression();
+
         s.start();
-        // Node s1 = new Sensor();
-        // s1.start();
-        // Node s2 = new Sensor();
-        // s2.start();
-        sm.bind((Sensor) s);
-        // sm.bind((Sensor) s1);
-        // sm.bind((Sensor) s2);
         Monitor s3 = new Monitor();
         s3.start();
         s3.setMonitorDashboard(md);
