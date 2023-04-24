@@ -5,20 +5,12 @@ import java.util.HashMap;
 
 import com.rabbitmq.client.*;
 import com.tortoise.Tortoise;
-import com.tortoise.network.ControlDataPacket;
 import com.tortoise.network.SensorData;
 import com.tortoise.network.SensorDataPacket;
-import com.tortoise.ui.MonitorDashboard;
-
 
 public class Monitor extends Node {
     private HashMap<Integer, SensorData> sensorData = new HashMap<Integer, SensorData>();
-    private MonitorDashboard md = null;
 
-    public void setMonitorDashboard(MonitorDashboard md) {
-        this.md = md;
-        md.setMonitor(this);
-    }
 
     DeliverCallback deliverCallback = (consumerTag, delivery) -> {
         SensorDataPacket p = new SensorDataPacket();
@@ -40,28 +32,12 @@ public class Monitor extends Node {
         //// Just for testing
         try {
             while (true) {
-                if (md != null) {
-                    md.process(sensorData);
-                }
                 Thread.sleep(Tortoise.TIME_WINDOW);
             }
         } catch (Exception e) {
 
         }
 
-    }
-
-    protected void publish(int id, byte _value) {
-        ControlDataPacket p = new ControlDataPacket(id, _value);
-        try {
-            this.conn.publish(Tortoise.CONTROL_EXCHANGE, p.encode());
-        } catch (IOException e) {
-            System.err.println("IO Error when publishing");
-        }
-    }
-
-    public void changeMode(int id, byte mode) {
-        this.publish(id, mode);
     }
     
 }
