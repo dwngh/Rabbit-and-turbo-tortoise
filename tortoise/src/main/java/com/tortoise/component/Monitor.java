@@ -17,7 +17,6 @@ public class Monitor extends Node {
 
     public void setMonitorDashboard(MonitorDashboard md) {
         this.md = md;
-        md.setMonitor(this);
     }
 
     DeliverCallback deliverCallback = (consumerTag, delivery) -> {
@@ -41,7 +40,6 @@ public class Monitor extends Node {
         try {
             while (true) {
                 if (md != null) {
-                    md.process(sensorData);
                 }
                 Thread.sleep(Tortoise.TIME_WINDOW);
             }

@@ -25,7 +25,6 @@ public class Tortoise {
         // s1.start();
         // Node s2 = new Sensor();
         // s2.start();
-        sm.bind((Sensor) s);
         // sm.bind((Sensor) s1);
         // sm.bind((Sensor) s2);
         Monitor s3 = new Monitor();
