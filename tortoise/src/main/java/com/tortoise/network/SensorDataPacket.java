@@ -50,12 +50,16 @@ public class SensorDataPacket extends AbstractPacket{
 
     @Override
     public byte[] encode() {
-        System.out.println("Encoding");
         int intBits =  Float.floatToIntBits(sensorData.getValue());
         return new byte[] {
             (byte) ((id >> 24) & 0xff), (byte) ((id >> 16) & 0xff), (byte) ((id >> 8) & 0xff), (byte) ((id) & 0xff),
             (byte) ((intBits >> 24) & 0xff), (byte) ((intBits >> 16) & 0xff), (byte) ((intBits >> 8) & 0xff), (byte) ((intBits) & 0xff),
                 sensorData.getMode(),
         };
+    }
+
+    @Override
+    public int getSize() {
+        return 9;
     }
 }

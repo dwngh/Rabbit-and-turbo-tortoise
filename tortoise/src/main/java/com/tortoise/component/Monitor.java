@@ -9,11 +9,13 @@ import com.tortoise.network.ControlDataPacket;
 import com.tortoise.network.SensorData;
 import com.tortoise.network.SensorDataPacket;
 import com.tortoise.ui.MonitorDashboard;
+import com.tortoise.util.Aggregator;
 
 
 public class Monitor extends Node {
     private HashMap<Integer, SensorData> sensorData = new HashMap<Integer, SensorData>();
     private MonitorDashboard md = null;
+    private Aggregator aggregator;
 
     public void setMonitorDashboard(MonitorDashboard md) {
         this.md = md;
@@ -22,9 +24,15 @@ public class Monitor extends Node {
 
     DeliverCallback deliverCallback = (consumerTag, delivery) -> {
         SensorDataPacket p = new SensorDataPacket();
-        p.decode(delivery.getBody());
-        sensorData.put(p.getId(), p.getSensorData());
-        p.print();
+        if (aggregator != null && delivery.getBody().length > p.getSize()) {
+            System.out.println("Agg");
+            aggregator.aggregateReceivedData(delivery.getBody().length);
+        } else {
+            p.decode(delivery.getBody());
+            sensorData.put(p.getId(), p.getSensorData());
+            System.out.println("Sensor");
+            // p.print();
+        }
     };
 
     CancelCallback cancelCallback = consumerTag -> { };
@@ -39,7 +47,7 @@ public class Monitor extends Node {
         this.conn.initInChannel(Tortoise.SENSOR_EXCHANGE, "monitor", this.deliverCallback, cancelCallback);
         //// Just for testing
         try {
-            while (true) {
+            while (isAlive) {
                 if (md != null) {
                     md.process(sensorData);
                 }
@@ -48,7 +56,7 @@ public class Monitor extends Node {
         } catch (Exception e) {
 
         }
-
+        System.out.println("Monitor-" + Integer.toString(id) + " has terminated");
     }
 
     protected void publish(int id, byte _value) {
@@ -62,6 +70,10 @@ public class Monitor extends Node {
 
     public void changeMode(int id, byte mode) {
         this.publish(id, mode);
+    }
+
+    public void bindToEvaluator(Aggregator ag) {
+        this.aggregator = ag;
     }
     
 }
