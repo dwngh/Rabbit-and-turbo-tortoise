@@ -39,5 +39,10 @@ public class ControlDataPacket extends AbstractPacket{
             (byte) ((id >> 24) & 0xff), (byte) ((id >> 16) & 0xff), (byte) ((id >> 8) & 0xff), (byte) ((id) & 0xff), value
         };
     }
-    
+
+    @Override
+    public int getSize() {
+        return 5;
+    }
+
 }

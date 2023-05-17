@@ -20,12 +20,21 @@ public class SensorDataChart extends JPanel {
     /** The time series data. */
     private TimeSeries series;
     private JTextField modeString;
+    private JPanel buttonPanel;
+    private boolean isEvaluating;
+    private JButton button;
+    private JButton button1;
 
     private void setModeString() {
         if (mode == Sensor.ENA_COMPRESSION) {
             modeString.setText("Mode: COMPRESS");
         } else if (mode == Sensor.NO_COMPRESSION) {
             modeString.setText("Mode: NO_COMPRESS");
+        } else if (mode == Sensor.EVALUATION) {
+            modeString.setText("Mode: EVALUATION                     ");
+            buttonPanel.remove(button);
+            buttonPanel.remove(button1);
+            buttonPanel.revalidate();
         }
     }
 
@@ -50,14 +59,14 @@ public class SensorDataChart extends JPanel {
         this.id = id;
         this.series = new TimeSeries("Sensor value", Millisecond.class);
 
-        final JButton button = new JButton("Switch compression mode off");
+        button = new JButton("Switch compression mode off");
         button.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 md.setCompressionMode(id, Sensor.NO_COMPRESSION);
             }
         });
-        final JButton button1 = new JButton("Switch compression mode on");
+        button1 = new JButton("Switch compression mode on");
         button1.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -67,7 +76,7 @@ public class SensorDataChart extends JPanel {
         final TimeSeriesCollection dataset = new TimeSeriesCollection(this.series);
         final JFreeChart chart = createChart(dataset, "Sensor-" + Integer.toString(id));
         final ChartPanel chartPanel = new ChartPanel(chart);
-        JPanel buttonPanel = new JPanel(new GridLayout(3, 1));
+        buttonPanel = new JPanel(new GridLayout(3, 1));
         this.setMaximumSize(new Dimension(250, 50));
         this.modeString = new JTextField();
         this.modeString.setEditable(false);

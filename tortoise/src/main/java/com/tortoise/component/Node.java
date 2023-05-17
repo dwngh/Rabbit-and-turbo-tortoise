@@ -8,8 +8,10 @@ public abstract class Node implements Runnable{
     protected AMQP_Connection conn;
     protected Thread t;
     protected String name;
+    protected boolean isAlive;
 
     public Node() {
+        this.isAlive = true;
         this.id = COUNTER++;
         this.name = "Node-" + Integer.toString(this.id);
         this.conn = new AMQP_Connection();
@@ -26,5 +28,10 @@ public abstract class Node implements Runnable{
             t = new Thread(this, name);
             t.start();
         }
+    }
+
+    public void terminate() {
+        conn.terminate();
+        this.isAlive = false;
     }
 }

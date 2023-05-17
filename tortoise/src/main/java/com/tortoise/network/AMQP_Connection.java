@@ -66,4 +66,17 @@ public class AMQP_Connection {
         if (this.publish != null)
             this.publish.basicPublish(exchange, "info", null, data);
     }
+
+    public void terminate() {
+        try {
+            publish.close();
+            consume.close();
+            connection.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (TimeoutException e) {
+            e.printStackTrace();
+        }
+
+    }
 }

@@ -32,6 +32,7 @@ public class SensorManager extends JFrame{
         UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
         this.setSize(700, 560);
         this.setMinimumSize(new Dimension(500, 350));
+        deleteSensor.setVisible(false);
         this.add(panel1);
         this.setLocationRelativeTo(null);
         this.setVisible(true);

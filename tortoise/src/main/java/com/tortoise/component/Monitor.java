@@ -14,6 +14,7 @@ import com.tortoise.ui.MonitorDashboard;
 public class Monitor extends Node {
     private HashMap<Integer, SensorData> sensorData = new HashMap<Integer, SensorData>();
     private MonitorDashboard md = null;
+    private NetworkEvaluator networkEvaluator;
 
     public void setMonitorDashboard(MonitorDashboard md) {
         this.md = md;
@@ -24,7 +25,10 @@ public class Monitor extends Node {
         SensorDataPacket p = new SensorDataPacket();
         p.decode(delivery.getBody());
         sensorData.put(p.getId(), p.getSensorData());
-        p.print();
+        // p.print();
+        if (networkEvaluator != null) {
+            networkEvaluator.updateNetStatus(p.getId(), p.getValue(), System.currentTimeMillis(), p.getSize());
+        }
     };
 
     CancelCallback cancelCallback = consumerTag -> { };
@@ -39,7 +43,7 @@ public class Monitor extends Node {
         this.conn.initInChannel(Tortoise.SENSOR_EXCHANGE, "monitor", this.deliverCallback, cancelCallback);
         //// Just for testing
         try {
-            while (true) {
+            while (isAlive) {
                 if (md != null) {
                     md.process(sensorData);
                 }
@@ -48,7 +52,7 @@ public class Monitor extends Node {
         } catch (Exception e) {
 
         }
-
+        System.out.println("Monitor-" + Integer.toString(id) + " has terminated");
     }
 
     protected void publish(int id, byte _value) {
@@ -62,6 +66,10 @@ public class Monitor extends Node {
 
     public void changeMode(int id, byte mode) {
         this.publish(id, mode);
+    }
+
+    public void bindToNetEvaluator(NetworkEvaluator ne) {
+        this.networkEvaluator = ne;
     }
     
 }
