@@ -9,13 +9,12 @@ import com.tortoise.network.ControlDataPacket;
 import com.tortoise.network.SensorData;
 import com.tortoise.network.SensorDataPacket;
 import com.tortoise.ui.MonitorDashboard;
-import com.tortoise.util.Aggregator;
 
 
 public class Monitor extends Node {
     private HashMap<Integer, SensorData> sensorData = new HashMap<Integer, SensorData>();
     private MonitorDashboard md = null;
-    private Aggregator aggregator;
+    private NetworkEvaluator networkEvaluator;
 
     public void setMonitorDashboard(MonitorDashboard md) {
         this.md = md;
@@ -24,14 +23,11 @@ public class Monitor extends Node {
 
     DeliverCallback deliverCallback = (consumerTag, delivery) -> {
         SensorDataPacket p = new SensorDataPacket();
-        if (aggregator != null && delivery.getBody().length > p.getSize()) {
-            System.out.println("Agg");
-            aggregator.aggregateReceivedData(delivery.getBody().length);
-        } else {
-            p.decode(delivery.getBody());
-            sensorData.put(p.getId(), p.getSensorData());
-            System.out.println("Sensor");
-            // p.print();
+        p.decode(delivery.getBody());
+        sensorData.put(p.getId(), p.getSensorData());
+        // p.print();
+        if (networkEvaluator != null) {
+            networkEvaluator.updateNetStatus(p.getId(), p.getValue(), System.currentTimeMillis(), p.getSize());
         }
     };
 
@@ -72,8 +68,8 @@ public class Monitor extends Node {
         this.publish(id, mode);
     }
 
-    public void bindToEvaluator(Aggregator ag) {
-        this.aggregator = ag;
+    public void bindToNetEvaluator(NetworkEvaluator ne) {
+        this.networkEvaluator = ne;
     }
     
 }

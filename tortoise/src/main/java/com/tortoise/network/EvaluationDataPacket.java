@@ -8,11 +8,11 @@ public class EvaluationDataPacket extends AbstractPacket{
 
     @Override
     public byte[] encode() {
-        return new byte[9];
+        return new byte[90];
     }
 
     @Override
     public int getSize() {
-        return 9;
+        return 90;
     }
 }

@@ -1,9 +1,7 @@
 package com.tortoise;
 
-import com.tortoise.component.CapabilityEvaluator;
-import com.tortoise.component.Node;
-import com.tortoise.component.Sensor;
-import com.tortoise.component.Monitor;
+import com.tortoise.component.*;
+import com.tortoise.ui.EvaluationDashboard;
 import com.tortoise.ui.MonitorDashboard;
 import com.tortoise.ui.SensorManager;
 
@@ -17,19 +15,23 @@ public class Tortoise {
     public final static int TIME_WINDOW = 500;
  
     public static void main(String[] argv) throws Exception {
-//        MonitorDashboard md = new MonitorDashboard();
-//        SensorManager sm = new SensorManager();
-//        Node s = new Sensor();
-//        s.start();
-//        sm.bind((Sensor) s);
-        Monitor s3 = new Monitor();
-        s3.start();
-//        s3.setMonitorDashboard(md);
+        MonitorDashboard md = new MonitorDashboard();
+        SensorManager sm = new SensorManager();
+        EvaluationDashboard ed = new EvaluationDashboard();
+        System.out.println("Init");
+        NetworkEvaluator ne = new NetworkEvaluator();
+        ne.bind(ed);
+        Node s = new Sensor();
+        Sensor s1 = new Sensor(ne); // Indicate that this node is for evaluating network
+        // ((Sensor) s).disableCompression();
+        s1.start();
+        s.start();
+        sm.bind((Sensor) s);
 
-        CapabilityEvaluator ce = new CapabilityEvaluator(s3);
-        ce.initSession(300);
-        ce.beginSession();
-//        s3.terminate();
+        Monitor s3 = new Monitor();
+        s3.bindToNetEvaluator(ne);
+        s3.start();
+        s3.setMonitorDashboard(md);
     }
  
 }

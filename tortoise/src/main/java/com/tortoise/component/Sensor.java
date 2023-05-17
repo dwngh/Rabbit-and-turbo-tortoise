@@ -1,6 +1,7 @@
 package com.tortoise.component;
 
 import java.io.IOException;
+import java.sql.Timestamp;
 
 import com.rabbitmq.client.CancelCallback;
 import com.rabbitmq.client.DeliverCallback;
@@ -17,10 +18,10 @@ public class Sensor extends Node {
     protected FlashMemory mem;
     private float value;
 
-    private SensorCluster sensorCluster;
-    private int life;
+    private NetworkEvaluator networkEvaluator;
     public static byte NO_COMPRESSION = 0;
     public static byte ENA_COMPRESSION = 1;
+    public static byte EVALUATION = 2;
 
     protected DeliverCallback deliverCallback = (consumerTag, delivery) -> {
         ControlDataPacket p = new ControlDataPacket();
@@ -43,10 +44,9 @@ public class Sensor extends Node {
         this.isAlive = true;
     }
 
-    public Sensor(SensorCluster sc) {
+    public Sensor(NetworkEvaluator networkEvaluator) {
         super();
-        this.sensorCluster = sc;
-        this.life = CapabilityEvaluator.NUMBER_OF_WINDOWS;
+        if (networkEvaluator.attachSensor(id)) this.networkEvaluator = networkEvaluator;;
         this.gen = new Simulator(id * 17, 9, 3);
         this.conn.initOutChannel(Tortoise.SENSOR_EXCHANGE);
         this.compression = false;
@@ -78,24 +78,19 @@ public class Sensor extends Node {
 
         }
         System.out.println("Sensor-" + Integer.toString(id) + " has terminated");
-        sensorCluster.popOut();
     }
 
     protected void publish(float _value) {
         this.value = _value;
         try {
-            if (sensorCluster != null) {
-                life--;
-                EvaluationDataPacket p = new EvaluationDataPacket();
-                this.conn.publish(Tortoise.SENSOR_EXCHANGE, p.encode());
-                if (life <= 0) {
-                    this.terminate();
-                }
-                sensorCluster.doSendData(p.getSize());
-            } else {
-                SensorDataPacket p = new SensorDataPacket(this.id, _value, compression ? ENA_COMPRESSION : NO_COMPRESSION);
-                this.conn.publish(Tortoise.SENSOR_EXCHANGE, p.encode());
+            byte mode = compression ? ENA_COMPRESSION : NO_COMPRESSION;
+            if (networkEvaluator != null) {
+                networkEvaluator.updateCurrentSensor(_value, System.currentTimeMillis());
+                mode = EVALUATION;
             }
+            SensorDataPacket p = new SensorDataPacket(this.id, _value, mode);
+            this.conn.publish(Tortoise.SENSOR_EXCHANGE, p.encode());
+
         } catch (IOException e) {
             System.err.println("IO Error when publishing");
         }
