@@ -1,6 +1,8 @@
 package com.tortoise.network;
 
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.TimeoutException;
 
 import com.rabbitmq.client.*;
@@ -37,14 +39,25 @@ public class AMQP_Connection {
         }
     }
 
+    public void initFanOutChannel(String exchange) {
+        try {
+            this.publish = connection.createChannel();
+            this.publish.exchangeDeclare(exchange, BuiltinExchangeType.FANOUT);
+        } catch (IOException e) {
+
+        }
+    }
+
     public String getConsumerTag() {
         return consumerTag;
     }
 
     public void initInChannel(String consume_queue, DeliverCallback deliverCallback, CancelCallback cancelCallback) {
         try {
+            Map<String, Object> args = new HashMap<String, Object>();
+            args.put("x-max-length", Tortoise.QUEUE_MAX_LENGTH);
             this.consume = connection.createChannel();
-            this.consume.queueDeclare(consume_queue, false, false, false, null);
+            this.consume.queueDeclare(consume_queue, false, false, false, args);
             this.consumerTag = this.consume.basicConsume(consume_queue, true, deliverCallback, cancelCallback);
         } catch (IOException e) {
 

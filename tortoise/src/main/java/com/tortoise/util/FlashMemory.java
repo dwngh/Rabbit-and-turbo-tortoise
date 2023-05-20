@@ -16,4 +16,8 @@ public class FlashMemory {
         }
         return 0;
     }
+
+    public void flush() {
+        index = 0;
+    }
 }

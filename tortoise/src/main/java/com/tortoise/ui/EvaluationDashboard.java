@@ -21,8 +21,8 @@ public class EvaluationDashboard extends JFrame{
         this.setVisible(true);
     }
 
-    public void update(long delay, float throughput, int estimate_maximum_node) {
-        this.delayValueLabel.setText(Long.toString(delay) + " ms");
+    public void update(float delay, float throughput, int estimate_maximum_node) {
+        this.delayValueLabel.setText(Float.toString(delay) + " ms");
         this.throughputValueLabel.setText(Float.toString(throughput) + " bps");
         this.maxNode.setText(Integer.toString(estimate_maximum_node) + " sensors");
     }

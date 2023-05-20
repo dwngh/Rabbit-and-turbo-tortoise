@@ -2,7 +2,7 @@
 <form xmlns="http://www.intellij.com/uidesigner/form/" version="1" bind-to-class="com.tortoise.ui.SensorManager">
   <grid id="27dc6" binding="panel1" default-binding="true" layout-manager="BorderLayout" hgap="0" vgap="0">
     <constraints>
-      <xy x="20" y="20" width="500" height="400"/>
+      <xy x="20" y="20" width="522" height="400"/>
     </constraints>
     <properties/>
     <border type="none"/>
@@ -50,6 +50,24 @@
                     <constraints/>
                     <properties>
                       <text value="Delete..."/>
+                    </properties>
+                  </component>
+                  <component id="1c023" class="javax.swing.JButton" binding="previousPageButton" default-binding="true">
+                    <constraints/>
+                    <properties>
+                      <text value="Previous page..."/>
+                    </properties>
+                  </component>
+                  <component id="b7b1d" class="javax.swing.JLabel" binding="paging">
+                    <constraints/>
+                    <properties>
+                      <text value="Label"/>
+                    </properties>
+                  </component>
+                  <component id="d14e2" class="javax.swing.JButton" binding="nextPageButton" default-binding="true">
+                    <constraints/>
+                    <properties>
+                      <text value="Next page..."/>
                     </properties>
                   </component>
                 </children>

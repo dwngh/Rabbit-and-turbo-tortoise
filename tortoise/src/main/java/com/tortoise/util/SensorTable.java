@@ -5,6 +5,8 @@ import com.tortoise.component.Sensor;
 import com.tortoise.ui.SensorManager;
 
 import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
 
 public class SensorTable implements Runnable{
     private HashMap<Integer, Sensor> sensors;
@@ -21,7 +23,10 @@ public class SensorTable implements Runnable{
 
     private String generateSensorInfo() {
         String tmp = "";
-        for (Sensor s : sensors.values()) {
+        Iterator<Map.Entry<Integer, Sensor>> it = sensors.entrySet().iterator();
+        while (it.hasNext()) {
+            Map.Entry<Integer, Sensor> entry = it.next();
+            Sensor s = entry.getValue();
             tmp += generateSameIndentString("ID:", Integer.toString(s.getId()), 12);
             tmp += generateSameIndentString("Value:", Float.toString(s.getValue()), 20);
             tmp += generateSameIndentString("Mode:", s.isCompression() ? "COMPRESS" : "NO_COMPRESS", 20);
@@ -58,7 +63,7 @@ public class SensorTable implements Runnable{
             while (runFlag) {
                 sm.update(generateSensorInfo());
                 try {
-                    Thread.sleep(Tortoise.TIME_WINDOW);
+                    Thread.sleep(Tortoise.TIME_WINDOW / 2);
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }

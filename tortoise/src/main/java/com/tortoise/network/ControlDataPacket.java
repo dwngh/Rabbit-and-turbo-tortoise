@@ -36,7 +36,11 @@ public class ControlDataPacket extends AbstractPacket{
     @Override
     public byte[] encode() {
         return new byte[] {
-            (byte) ((id >> 24) & 0xff), (byte) ((id >> 16) & 0xff), (byte) ((id >> 8) & 0xff), (byte) ((id) & 0xff), value
+                (byte) ((id >> 24) & 0xff),
+                (byte) ((id >> 16) & 0xff),
+                (byte) ((id >> 8) & 0xff),
+                (byte) ((id) & 0xff),
+                value
         };
     }
 

@@ -1,16 +1,29 @@
 package com.tortoise.component;
 
 import com.tortoise.Tortoise;
+import com.tortoise.network.SensorDataPacket;
 import com.tortoise.ui.EvaluationDashboard;
+import com.tortoise.util.EvaluationTable;
 import com.tortoise.util.Queue;
 
-public class NetworkEvaluator {
+public class NetworkEvaluator implements Runnable{
     private int sensorId = -1;
     private float s_eva;
     private long s_tm;
     private boolean prevResolved;
-    private Queue<Long> delays;
+    private Queue<Float> delays;
     private EvaluationDashboard evaluationDashboard;
+    private EvaluationTable evaluationTable;
+    protected Thread t;
+    private boolean runFlag;
+
+    public boolean isRunning() {
+        return runFlag;
+    }
+
+    public void terminate() {
+        this.runFlag = false;
+    }
 
     public boolean attachSensor(int id) {
         if (sensorId == -1) {
@@ -27,11 +40,21 @@ public class NetworkEvaluator {
     public NetworkEvaluator() {
         prevResolved = true;
         delays = new Queue<>(10);
+        evaluationTable = new EvaluationTable();
+        runFlag = true;
+    }
+
+    public void updateSensor(int id, float sensorValue, long sensorTimestamp) {
+        evaluationTable.updateValue(id, sensorValue, sensorTimestamp);
+    }
+
+    public void calculateSensor(int sid, float sensorValue, long monitorTimestamp, int packetSize) {
+        evaluationTable.calculateValue(sid, sensorValue, monitorTimestamp, packetSize);
     }
 
     private float delayMean() {
         if (delays.size() == 0) return 0;
-        return (float) delays.sum() / ((float) delays.size());
+        return delays.sum() / delays.size();
     }
 
     public void updateCurrentSensor(float sensorValue, long sensorTimestamp) {
@@ -52,7 +75,7 @@ public class NetworkEvaluator {
             System.out.println("Packet loss problem detected!");
         } else {
             long delay = monitorTimestamp - this.s_tm;
-            delays.enqueue(delay);
+//            delays.enqueue(delay);
             float throughput = 0;
             float _dm = delayMean();
             if (_dm > 0) throughput = ((float) (packetSize * 8)) / (_dm / 1000);
@@ -62,5 +85,28 @@ public class NetworkEvaluator {
             if (evaluationDashboard != null) evaluationDashboard.update(delay, throughput, estimate_maximum_node);
         }
         prevResolved = true;
+    }
+
+    @Override
+    public void run() {
+        while (runFlag) {
+            float d = evaluationTable.getAverageDelay();
+            delays.enqueue(d);
+            float throughput = (float) (new SensorDataPacket()).getSize() * 8f * 1000f / delayMean();
+            float emn = throughput / 8 / (1000 / Tortoise.TIME_WINDOW * (new SensorDataPacket()).getSize());
+            evaluationDashboard.update(d, throughput, Math.round(emn));
+            try {
+                Thread.sleep(Tortoise.TIME_WINDOW);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    public void start() {
+        if (t == null) {
+            t = new Thread(this, "network-evaluator");
+            t.start();
+        }
     }
 }
