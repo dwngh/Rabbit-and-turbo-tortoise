@@ -1,6 +1,7 @@
 package com.tortoise.ui;
 
 import com.tortoise.component.Monitor;
+import com.tortoise.component.Sensor;
 import com.tortoise.network.SensorData;
 
 import javax.swing.*;
@@ -8,6 +9,8 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
 
 public class MonitorDashboard extends JFrame{
     private JPanel panel1;
@@ -92,7 +95,10 @@ public class MonitorDashboard extends JFrame{
     }
 
     public void process(HashMap<Integer, SensorData> data) {
-        for (int sensor_id : data.keySet()) {
+        Iterator<Map.Entry<Integer, SensorData>> it = data.entrySet().iterator();
+        while (it.hasNext()) {
+            Map.Entry<Integer, SensorData> entry = it.next();
+            int sensor_id = entry.getKey();
             SensorDataChart temp = charts.get(sensor_id);
             if (temp == null) {
                 temp = new SensorDataChart(sensor_id);
@@ -111,7 +117,11 @@ public class MonitorDashboard extends JFrame{
                 temp.setMode(data.get(sensor_id).getMode());
             }
         }
-        for (int sensor_id : charts.keySet()) {
+
+        Iterator<Map.Entry<Integer, SensorDataChart>> it1 = charts.entrySet().iterator();
+        while (it1.hasNext()) {
+            Map.Entry<Integer, SensorDataChart> entry = it1.next();
+            int sensor_id = entry.getKey();
             if (!data.containsKey(sensor_id)) {
                 sensorDataPanel.remove(charts.get(sensor_id));
                 charts.remove(sensor_id);

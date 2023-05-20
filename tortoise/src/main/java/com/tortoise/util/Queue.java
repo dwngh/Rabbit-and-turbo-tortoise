@@ -30,10 +30,10 @@ public class Queue <T extends Number>{
         return value.size();
     }
 
-    public int sum() {
-        int agg = 0;
+    public float sum() {
+        float agg = 0;
         for (T element : value) {
-            agg += element.intValue();
+            agg += element.floatValue();
         }
         return agg;
     }

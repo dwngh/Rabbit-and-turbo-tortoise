@@ -24,18 +24,19 @@ public class Monitor extends Node {
     DeliverCallback deliverCallback = (consumerTag, delivery) -> {
         SensorDataPacket p = new SensorDataPacket();
         p.decode(delivery.getBody());
-        sensorData.put(p.getId(), p.getSensorData());
-        // p.print();
+
         if (networkEvaluator != null) {
-            networkEvaluator.updateNetStatus(p.getId(), p.getValue(), System.currentTimeMillis(), p.getSize());
+            networkEvaluator.calculateSensor(p.getId(), p.getValue(), System.currentTimeMillis(), p.getSize());
         }
+
+        sensorData.put(p.getId(), p.getSensorData());
     };
 
     CancelCallback cancelCallback = consumerTag -> { };
 
     public Monitor() {
         super();
-        this.conn.initOutChannel(Tortoise.CONTROL_EXCHANGE);
+        this.conn.initFanOutChannel(Tortoise.CONTROL_EXCHANGE);
     }
 
     @Override
@@ -50,7 +51,7 @@ public class Monitor extends Node {
                 Thread.sleep(Tortoise.TIME_WINDOW);
             }
         } catch (Exception e) {
-
+            e.printStackTrace();
         }
         System.out.println("Monitor-" + Integer.toString(id) + " has terminated");
     }

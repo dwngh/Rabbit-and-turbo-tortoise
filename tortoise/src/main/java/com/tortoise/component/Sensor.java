@@ -1,13 +1,11 @@
 package com.tortoise.component;
 
 import java.io.IOException;
-import java.sql.Timestamp;
 
 import com.rabbitmq.client.CancelCallback;
 import com.rabbitmq.client.DeliverCallback;
 import com.tortoise.Tortoise;
 import com.tortoise.network.ControlDataPacket;
-import com.tortoise.network.EvaluationDataPacket;
 import com.tortoise.network.SensorDataPacket;
 import com.tortoise.util.FlashMemory;
 import com.tortoise.util.Simulator;
@@ -28,7 +26,6 @@ public class Sensor extends Node {
         p.decode(delivery.getBody());
         if (p.getId() == this.id) {
             this.compression = p.getValue();
-            System.out.println("Set compression of " + Integer.toString(id) + ": " + String.valueOf(p.getValue()));
         }
     };
 
@@ -46,7 +43,7 @@ public class Sensor extends Node {
 
     public Sensor(NetworkEvaluator networkEvaluator) {
         super();
-        if (networkEvaluator.attachSensor(id)) this.networkEvaluator = networkEvaluator;;
+        this.networkEvaluator = networkEvaluator;;
         this.gen = new Simulator(id * 17, 9, 3);
         this.conn.initOutChannel(Tortoise.SENSOR_EXCHANGE);
         this.compression = false;
@@ -70,8 +67,10 @@ public class Sensor extends Node {
                     if (tmp != 0) {
                         publish(tmp);
                     }
-                } else
+                } else {
                     publish(tmp);
+                    mem.flush();
+                }
                 Thread.sleep(Tortoise.TIME_WINDOW);
             }
         } catch (Exception e) {
@@ -85,8 +84,8 @@ public class Sensor extends Node {
         try {
             byte mode = compression ? ENA_COMPRESSION : NO_COMPRESSION;
             if (networkEvaluator != null) {
-                networkEvaluator.updateCurrentSensor(_value, System.currentTimeMillis());
-                mode = EVALUATION;
+                networkEvaluator.updateSensor(id, _value, System.currentTimeMillis());
+//                mode = EVALUATION;
             }
             SensorDataPacket p = new SensorDataPacket(this.id, _value, mode);
             this.conn.publish(Tortoise.SENSOR_EXCHANGE, p.encode());
